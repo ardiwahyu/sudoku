@@ -11,7 +11,6 @@ import com.github.sudoku.data.local.db.entities.Game
 import com.github.sudoku.databinding.*
 import com.github.sudoku.utils.setting.SettingGame
 import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.toaster.Toaster
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

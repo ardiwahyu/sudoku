@@ -12,8 +12,7 @@ import com.github.sudoku.ui.board.OnCompleteListener
 import com.github.sudoku.utils.sudoku.Generator
 import com.github.sudoku.utils.sudoku.Grid
 import com.github.sudoku.utils.sudoku.Solver
-import com.toaster.Toaster
-import timber.log.Timber
+import org.jetbrains.anko.backgroundDrawable
 
 class SettingGame(private val activity: Activity, private val binding: BoardFieldBinding, private val inputBinding: BoardInputBinding) {
     private val boardGrouping = BoardGrouping(binding)
@@ -108,17 +107,24 @@ class SettingGame(private val activity: Activity, private val binding: BoardFiel
         groupInput.input.forEach { tvInput ->
             tvInput.setOnClickListener {
                 invalid = false
-                removeAllBackgroundFromInput()
-                setBackground(tvInput)
-                resetColorCell()
-                textView.text = tvInput.text
-                checkInvalidBoard()
-                if (!invalid) {
-                    if (checkAllBoardIsComplete()) {
-                        val listener = activity as OnCompleteListener
-                        listener.onComplete()
-                        removeAllOnClickListener()
+                if (tvInput.backgroundDrawable == null) {
+                    removeAllBackgroundFromInput()
+                    setBackground(tvInput)
+                    resetColorCell()
+                    textView.text = tvInput.text
+                    checkInvalidBoard()
+                    if (!invalid) {
+                        if (checkAllBoardIsComplete()) {
+                            val listener = activity as OnCompleteListener
+                            listener.onComplete()
+                            removeAllOnClickListener()
+                        }
                     }
+                } else {
+                    textView.text = ""
+                    tvInput.backgroundDrawable = null
+                    resetColorCell()
+                    checkInvalidBoard()
                 }
             }
         }
