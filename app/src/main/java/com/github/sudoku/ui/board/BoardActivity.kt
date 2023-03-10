@@ -2,6 +2,7 @@ package com.github.sudoku.ui.board
 
 import android.annotation.SuppressLint
 import android.app.Dialog
+import android.os.Build
 import android.os.Bundle
 import android.os.CountDownTimer
 import androidx.activity.viewModels
@@ -46,7 +47,11 @@ class BoardActivity : AppCompatActivity(), OnCompleteListener {
         settingGame = SettingGame(this, boardFieldBinding, boardInputBinding)
 
         if (intent.hasExtra(EXTRA_GAME)) {
-            val game = intent.getParcelableExtra<Game>(EXTRA_GAME)
+            val game = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                intent.getParcelableExtra(EXTRA_GAME, Game::class.java)
+            } else {
+                intent.getParcelableExtra(EXTRA_GAME)
+            }
             settingGame.setGame(game!!)
             timerStart(game.time!!)
             level = game.level!!
@@ -215,6 +220,7 @@ class BoardActivity : AppCompatActivity(), OnCompleteListener {
         }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onBackPressed() {
         if (resolve) {
             super.onBackPressed()
