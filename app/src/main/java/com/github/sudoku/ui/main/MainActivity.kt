@@ -8,6 +8,7 @@ import androidx.core.content.ContextCompat
 import com.github.sudoku.R
 import com.github.sudoku.databinding.ActivityMainBinding
 import com.github.sudoku.ui.board.BoardActivity
+import com.github.sudoku.utils.setting.Level
 import com.github.sudoku.utils.setting.Level.EASY
 import com.github.sudoku.utils.setting.Level.HARD
 import com.github.sudoku.utils.setting.Level.MEDIUM
@@ -18,7 +19,7 @@ import org.jetbrains.anko.intentFor
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
-    private var time: Long? = null
+    private var time: Int? = null
     private var level: Int? = null
     private val mainViewModel: MainViewModel by viewModels()
 
@@ -32,49 +33,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        resetLevel()
-        resetTime()
-        enableBtnNewGame()
+        setTime(null, null)
+        setLevel(null, null)
         mainViewModel.getGameSaved()
     }
 
     private fun initUi() {
-        binding.btn10m.setOnClickListener {
-            resetTime()
-            setBackground(it, R.drawable.bg_green_rouded)
-            time = 10
-            enableBtnNewGame()
-        }
-        binding.btn30m.setOnClickListener {
-            resetTime()
-            setBackground(it, R.drawable.bg_green_rouded)
-            time = 30
-            enableBtnNewGame()
-        }
-        binding.btn1h.setOnClickListener {
-            resetTime()
-            setBackground(it, R.drawable.bg_green_rouded)
-            time = 60
-            enableBtnNewGame()
-        }
-        binding.btnEasy.setOnClickListener {
-            resetLevel()
-            setBackground(it, R.drawable.bg_green_rouded)
-            level = EASY
-            enableBtnNewGame()
-        }
-        binding.btnMedium.setOnClickListener {
-            resetLevel()
-            setBackground(it, R.drawable.bg_green_rouded)
-            level = MEDIUM
-            enableBtnNewGame()
-        }
-        binding.btnHard.setOnClickListener {
-            resetLevel()
-            setBackground(it, R.drawable.bg_green_rouded)
-            level = HARD
-            enableBtnNewGame()
-        }
+        binding.btn10m.setOnClickListener { setTime(10, it) }
+        binding.btn30m.setOnClickListener { setTime(30, it) }
+        binding.btn1h.setOnClickListener { setTime(60, it) }
+        binding.btnEasy.setOnClickListener { setLevel(EASY, it) }
+        binding.btnMedium.setOnClickListener { setLevel(MEDIUM, it) }
+        binding.btnHard.setOnClickListener { setLevel(HARD, it) }
         binding.btnNewGame.setOnClickListener {
             startActivity(intentFor<BoardActivity>(
                 BoardActivity.EXTRA_TIME to time,
@@ -82,37 +52,30 @@ class MainActivity : AppCompatActivity() {
             ))
         }
 
-        mainViewModel.game.observe(this, { game ->
-            if (game == null) {
-                binding.btnResume.setOnClickListener {
-                    Toaster.defaultToast(this, "No games saved")
-                }
-            } else {
-                binding.btnResume.setOnClickListener {
-                    startActivity(intentFor<BoardActivity>(
-                        BoardActivity.EXTRA_GAME to game
-                    ))
-                }
+        mainViewModel.game.observe(this) { game ->
+            binding.btnResume.setOnClickListener {
+                if (game == null) Toaster.defaultToast(this, "No games saved")
+                else startActivity(intentFor<BoardActivity>(BoardActivity.EXTRA_GAME to game ))
             }
-        })
+        }
     }
 
-    private fun enableBtnNewGame() {
-        binding.btnNewGame.isEnabled = time != null && level != null
-    }
-
-    private fun resetTime() {
-        time = null
+    private fun setTime(time: Int?, view: View?) {
+        this.time = time
         setBackground(binding.btn10m, R.drawable.bg_transparent_border_white_rouded)
         setBackground(binding.btn30m, R.drawable.bg_transparent_border_white_rouded)
         setBackground(binding.btn1h, R.drawable.bg_transparent_border_white_rouded)
+        view?.let { setBackground(it, R.drawable.bg_green_rouded) }
+        binding.btnNewGame.isEnabled = time != null && level != null
     }
 
-    private fun resetLevel() {
-        level = null
+    private fun setLevel(level: Int?,view: View?) {
+        this.level = level
         setBackground(binding.btnEasy, R.drawable.bg_transparent_border_white_rouded)
         setBackground(binding.btnMedium, R.drawable.bg_transparent_border_white_rouded)
         setBackground(binding.btnHard, R.drawable.bg_transparent_border_white_rouded)
+        view?.let { setBackground(it, R.drawable.bg_green_rouded) }
+        binding.btnNewGame.isEnabled = time != null && level != null
     }
 
     private fun setBackground(view: View, int: Int) {
